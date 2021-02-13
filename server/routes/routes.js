@@ -1,9 +1,13 @@
 const {Router} = require('express')
 const router = Router();
-//const {} = require('./controller');
+const {
+    getUserLogin,
+    registerUser
+} = require('./controller');
+const {sendEmail} = require('./sendCode')
 
-router.get('/',(req,res)=>{
-    res.send('Hola mundo!')
-});
+router.post('/login', getUserLogin);
+router.post('/registerUser',registerUser);
+router.post('/sendCode',sendEmail);
 
 module.exports = router;
