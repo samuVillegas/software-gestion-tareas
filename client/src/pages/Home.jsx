@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '../components/base/Header';
 import Footer from '../components/base/Footer';
+import Login from '../components/Login';
 import Fondo from "../images/fondo.jpg"
 
 
@@ -9,7 +10,7 @@ export default function Home(){
         <section style={{backgroundImage: `url(${Fondo})`}}>
             <Header/>
             <br/>
-            <h1>Hola mundo</h1>
+            <Login/>
             <br/>
             <Footer/>
         </section>
