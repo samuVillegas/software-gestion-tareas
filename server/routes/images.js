@@ -31,7 +31,7 @@ const uploadImg = multer({
 
 module.exports = { 
     sendImg: (req, res) => {
-        uploadImg(req, res, (err) => {
+        uploadImg(req, res,(err) => {
             if (err) {      
                 console.log(err);
                 return  res.json({state:0, message: err});

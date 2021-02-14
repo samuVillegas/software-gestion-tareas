@@ -71,10 +71,32 @@ module.exports = {
     getTasks: async (req,res)=>{
         try{
             const {User} = req.params;
-            const result= await Task.find({User});
+            const High = await Task.find({User,TaskPriority:'High'}).sort({ExpirationDate: +1});
+            const Medium = await Task.find({User,TaskPriority:'Medium'}).sort({ExpirationDate: +1});
+            const Low = await Task.find({User,TaskPriority:'Low'}).sort({ExpirationDate: +1});
+            const result = [...High,...Medium,...Low];
             res.send(result);
         }catch(e){
             res.send(e);
+        }
+    },
+    deleteTask: async (req,res)=>{
+        try{
+            const {_id} = req.params;
+            await Task.deleteOne({_id:_id});
+            res.status(201).json({state:1,message:'Delete Task'})
+        }catch(err){
+            res.status(500).json({state:0,message:err});
+        }
+    },
+    editTast: async(req,res)=>{
+        try{
+            const{_id,UrlImg,TaskName,TaskPriority,ExpirationDate,User} = req.body;
+            await Task.findByIdAndUpdate(_id,{UrlImg,TaskName,TaskPriority,ExpirationDate,User});
+            res.status(201).json({state:1,message:'Update Task'})
+        }catch(err){
+            console.log(err);
+            res.status(500).json({state:0,message:err});
         }
     }
 }
