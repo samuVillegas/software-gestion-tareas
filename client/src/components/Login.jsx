@@ -18,6 +18,7 @@ const Login = () => {
         api.post(`/login`,data).then((res)=>{
             if(res.data.state === 1){
               saveToLocal('email', data.email);
+              saveToLocal('User',res.data.message['_id']);
               window.location.href="/code";
             }else if(res.data.state === 3){
               swal.fire({
