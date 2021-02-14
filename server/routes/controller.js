@@ -23,7 +23,7 @@ module.exports = {
                     await newUser.save();
                     res.status(201).json({state:1,message:newUser})
                 }else{
-                    res.status(401).json({state:2,message:"User exist"})
+                    res.status(200).json({state:2,message:"User exist"})
                 }
             }
             

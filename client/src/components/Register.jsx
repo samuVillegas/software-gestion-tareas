@@ -6,7 +6,7 @@ import api from '../axios/axios';
 import swal from "sweetalert2";
 import { saveToLocal, remove} from "../functions/localStorage";
 
-const Login = () => {
+const Register= () => {
   remove();
   const onSubmit = () => {
       const data = {
@@ -15,23 +15,15 @@ const Login = () => {
       }
       if(data.email!=='' && data.password!==''){
 
-        api.post(`/login`,data).then((res)=>{
+        api.post(`/registerUser`,data).then((res)=>{
             if(res.data.state === 1){
               saveToLocal('email', data.email);
               saveToLocal('User',res.data.message['_id']);
               window.location.href="/code";
-            }else if(res.data.state === 3){
-              swal.fire({
-                title: "Contraseña inválida",
-                text: "Ingrese una contraseña válida para el correo registrado",
-                icon: "error",
-                confirmButtonText: "¡Entendido!",
-                confirmButtonColor: "#f96332",
-              });
             }else if(res.data.state === 2){
               swal.fire({
-                title: "Correo electrónico no existe",
-                text: "Ingrese un correo registrado o cree una cuenta",
+                title: "Correo electrónico ya existe",
+                text: "Ingrese sesión o utilice otro",
                 icon: "error",
                 confirmButtonText: "¡Entendido!",
                 confirmButtonColor: "#f96332",
@@ -57,12 +49,12 @@ const Login = () => {
 
       }else{
         swal.fire({
-          title: "Error",
-          text: "Por favor ingrese todos los campos",
-          icon: "error",
-          confirmButtonText: "¡Entendido!",
-          confirmButtonColor: "#f96332",
-        });
+            title: "Error",
+            text: "Por favor ingrese todos los campos",
+            icon: "error",
+            confirmButtonText: "¡Entendido!",
+            confirmButtonColor: "#f96332",
+          });
       }
       
   };
@@ -71,7 +63,7 @@ const Login = () => {
     <section className="container-fluid w-100">
       <div className="container d-flex container_intro_home mb-5">
         <h4 className="intro_home mt-2 text-white">
-          Bienvenido a la plataforma para gestionar tus tareas diarias.
+          Bienvenido a la plataforma para gestionar tus tareas diarias, puedes registrarte con tú correo electrónico y una contraseña, ten en cuenta que se te contactará por el correo que proporciones. 
         </h4>
       </div>
 
@@ -79,7 +71,7 @@ const Login = () => {
         style={{ width: "25rem" }}
         className="col-8 mx-auto mt-2 mb-5 container-fluid"
       >
-        <Card.Title className="mt-3 mx-auto">Inicia tu sesión</Card.Title>
+        <Card.Title className="mt-3 mx-auto">Crea un usuario</Card.Title>
         <Card.Body>
           <Form onSubmit={onSubmit}>
             <Form.Group>
@@ -94,16 +86,15 @@ const Login = () => {
             <div className="d-flex justify-content-center align-items-center">
               <a href="#" className="m-auto">
                 <Button variant="primary" onClick={onSubmit}>
-                Ingresar
+                Crear
                 </Button>
               </a>
-              <a href="/registerUser" className="m-auto">
+              <a href="/" className="m-auto">
                 <Button variant="danger">
-                  Registrarse
+                  Iniciar sesión
                 </Button>
               </a>
             </div>
-            
           </Form>
         </Card.Body>
       </Card>
@@ -111,4 +102,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

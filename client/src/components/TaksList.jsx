@@ -37,6 +37,7 @@ const TaskList = () => {
   const [idEdit,setIdEdit] = useState('');
 
 
+
   useEffect(() => {
     seeTasks();
   }, []);
@@ -261,7 +262,7 @@ const TaskList = () => {
                   </td>
                   <td>{info.ExpirationDate.split('T')[0] === new Date().toISOString().split('T')[0]?
                   <Button variant="outline-danger" disabled>Alerta</Button>:
-                  testDate(info.ExpirationDate)?<Button variant="outline-success">A tiempo</Button>:<Button variant="outline-dark">Vencida</Button>}</td>
+                  testDate(info.ExpirationDate)?<Button variant="outline-success" disabled>A tiempo</Button>:<Button variant="outline-dark" disabled>Vencida</Button>}</td>
                   <td>
                     <Button variant="primary" className="btn btn-info" onClick={()=>{
                       setIdEdit(info["_id"]);
@@ -467,7 +468,6 @@ const TaskList = () => {
                 <br></br>
                 <ButtonGroup>
                   <Button
-
                     variant="danger"
                     onClick={() => {
                       handlePriorityChange("High");
