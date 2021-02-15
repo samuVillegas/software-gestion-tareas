@@ -64,7 +64,8 @@ module.exports = {
             await newTask.save();
             res.status(201).json({state:1,message:newTask})
 
-        }catch(e){
+        }catch(err){
+            console.log(err);
             res.status(500).json({state:0,message:err});
         }
     },
