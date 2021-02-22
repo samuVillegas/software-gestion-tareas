@@ -3,8 +3,8 @@ const faker = require('faker');
 const app = require('../index');
 
 
-
-describe("Se quieren probar los servicios que involucran los usuarios",()=>{
+describe("Se quieren probar los servicios que involucran los usuarios y las tareas",()=>{
+   
     it('Verificar que el registro de usuarios funciona', async()=>{
         const res = await request(app)
             .post('/registerUser')
@@ -90,9 +90,8 @@ describe("Se quieren probar los servicios que involucran los usuarios",()=>{
 
     it('Verificar que la edición de tareas funciona', async()=>{
         const res = await request(app)
-            .put('/editTask')
+            .put(`/editTask/6033ef114abb004f3b90f210`)
             .send({
-                _id:"602aa5ba18eb365edcb33fa8",
                 UrlImg:faker.image.imageUrl(),
                 TaskName:faker.lorem.words(),
                 TaskPriority:faker.random.arrayElement(['High','Medium','Low']),

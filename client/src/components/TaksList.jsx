@@ -24,9 +24,19 @@ const TaskList = () => {
   const [show3,setShow3] = useState(false)
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const handleClose2 = () => setShow2(false);
+  const handleClose2 = () => {setShow2(false); setImgname('')};
   const handleShow2 = () => setShow2(true);
-  const handleClose3 = () => setShow3(false);
+  const handleClose3 = () => {
+    setShow3(false); 
+    setImgname('');
+    setFileImg('');
+    setNameEditTask('')
+    handleDateChange(new Date());
+    setPriorityEditTask('')
+    setImgChange(false);
+    seeTasks();
+
+  };
   const handleShow3 = () => setShow3(true);
   const [selectedDate, handleDateChange] = useState(new Date());
   const [selectedPriority, handlePriorityChange] = useState("Low");
@@ -34,7 +44,15 @@ const TaskList = () => {
   const [imgname, setImgname] = useState("");
   const [infoTasks, setInfoTasks] = useState([]);
   const [imgModal, setImgModal] = useState("");
+  
+  
+  //Hooks para edición
   const [idEdit,setIdEdit] = useState('');
+  const [nameEditTask,setNameEditTask] = useState('');
+  const [nameImgEditTask,setnameImgEditTask]= useState('');
+  const [priorityEditTask,setPriorityEditTask] = useState('');
+  const [imgChange,setImgChange] = useState(false);
+  const [dateChange,setDateChange] = useState(false);
 
 
 
@@ -42,10 +60,10 @@ const TaskList = () => {
     seeTasks();
   }, []);
 
-  function seeTasks() {
+  async function seeTasks() {
     const User = getFromLocal("User");
     if (User) {
-      api
+      await api
         .get(`/getTasks/${User}`)
         .then((res) => {
           setInfoTasks(res.data);
@@ -77,7 +95,11 @@ const TaskList = () => {
             const data = {
               UrlImg: `./uploads/${res.data.message.filename}`,
               TaskName: taskName,
-              TaskPriority: selectedPriority,
+              TaskPriority: selectedPriority === "Alta"
+              ? "High"
+              : selectedPriority === "Media"
+              ? "Medium"
+              : "Low" ,
               ExpirationDate: selectedDate,
               User: getFromLocal("User"),
             };
@@ -132,78 +154,53 @@ const TaskList = () => {
     }
   };
 
-  const editTask = ()=>{
-    const taskName = document.querySelector("#nameEdit").value;
-    if (taskName !== "" && fileImg !== "" && imgname !== ""  && selectedPriority!=='') {
+  const editTask = async()=>{
+    const data = {};
+    console.log(imgChange)
+    if(imgChange){
       const formData = new FormData();
       formData.append("img", fileImg, imgname);
 
-      api
-        .post("/sendImg", formData, {
+      await api.post("/sendImg", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        })
-        .then((res) => {
-          if (res.data.state === 1) {
-            selectedDate.setHours(selectedDate.getHours() - 5);
-            const data = {
-              _id:idEdit,
-              UrlImg: `./uploads/${res.data.message.filename}`,
-              TaskName: taskName,
-              TaskPriority: selectedPriority,
-              ExpirationDate: selectedDate,
-              User: getFromLocal("User"),
-            };
-
-            api
-              .put("/editTask", data)
-              .then((res) => {
-                seeTasks();
-                const taskName = document.querySelector("#nameEdit").value = '';
-                handlePriorityChange('Low');
-                handleDateChange(new Date());
-                setFileImg('');
-                setImgname('');
-                handleClose3();
-              })
-              .catch((err) => {
-                swal.fire({
-                  title: "Error 500",
-                  text: "Por favor reintente o vuelva después",
-                  icon: "error",
-                  confirmButtonText: "¡Entendido!",
-                  confirmButtonColor: "#f96332",
-                });
-              });
-          } else if (res.data.state === 0) {
-            swal.fire({
-              title: "Error 500",
-              text: "Por favor reintente o vuelva después",
-              icon: "error",
-              confirmButtonText: "¡Entendido!",
-              confirmButtonColor: "#f96332",
-            });
-          }
-        })
-        .catch((err) => {
-          swal.fire({
-            title: "Error 500",
-            text: "Por favor reintente o vuelva después",
-            icon: "error",
-            confirmButtonText: "¡Entendido!",
-            confirmButtonColor: "#f96332",
-          });
+      }).then((res)=>{
+        data.UrlImg = `./uploads/${res.data.message.filename}`
+      }).catch((err)=>{
+        swal.fire({
+          title: "Error 500",
+          text: "Por favor reintente o vuelva después",
+          icon: "error",
+          confirmButtonText: "¡Entendido!",
+          confirmButtonColor: "#f96332",
         });
-    }else{
+      })
+    }
+
+    if(dateChange){
+        selectedDate.setHours(selectedDate.getHours() - 5);
+        data.ExpirationDate = selectedDate;
+    }
+
+    data.TaskName = nameEditTask;
+    data.TaskPriority = priorityEditTask === "Alta"
+    ? "High"
+    : priorityEditTask === "Media"
+    ? "Medium"
+    : "Low";
+
+    api.put(`/editTask/${idEdit}`,data).then((res)=>{
+      handleClose3();
+    }).catch((err)=>{
       swal.fire({
-        title: "Error",
-        text: "Por favor ingrese todos los campos",
+        title: "Error 500",
+        text: "Por favor reintente o vuelva después",
         icon: "error",
         confirmButtonText: "¡Entendido!",
         confirmButtonColor: "#f96332",
       });
-    }
+    })
   }
 
   const testDate = (date)=>{
@@ -266,7 +263,18 @@ const TaskList = () => {
                   <td>
                     <Button variant="primary" className="btn btn-info" onClick={()=>{
                       setIdEdit(info["_id"]);
+                      setNameEditTask(info["TaskName"]);
+                      setnameImgEditTask(info["UrlImg"].split("/")[2]);
+                      setPriorityEditTask(info.TaskPriority === "High"
+                      ? "Alta"
+                      : info.TaskPriority === "Medium"
+                      ? "Media"
+                      : "Baja");
+                      var date = new Date(`${info.ExpirationDate}`);
+                      date.setHours(date.getHours() + 5);
+                      handleDateChange(date);
                       handleShow3();
+                      console.log(dateChange);
                     }}>
                       Editar
                     </Button>
@@ -382,14 +390,14 @@ const TaskList = () => {
                 </MuiPickersUtilsProvider>
               </Form.Group>
               <Form.Group>
-                <Form.Label>Prioridad</Form.Label>
+                <Form.Label>Prioridad:{ selectedPriority}</Form.Label>
                 <br></br>
                 <ButtonGroup>
                   <Button
                     id="btn1"
                     variant="danger"
                     onClick={() => {
-                      handlePriorityChange("High");
+                      handlePriorityChange("Alta");
                     }}
                   >
                     Alta
@@ -397,7 +405,7 @@ const TaskList = () => {
                   <Button
                     variant="success"
                     onClick={() => {
-                      handlePriorityChange("Medium");
+                      handlePriorityChange("Media");
                     }}
                   >
                     Media
@@ -405,7 +413,7 @@ const TaskList = () => {
                   <Button
                     variant="primary"
                     onClick={() => {
-                      handlePriorityChange("Low");
+                      handlePriorityChange("Baja");
                     }}
                   >
                     Baja
@@ -420,8 +428,12 @@ const TaskList = () => {
                     setFileImg(e.target.files[0]);
                     setImgname(e.target.files[0].name);
                   }}
+                  label={imgname}
                   accept=".jpeg,.jpg,.png"
-                />
+                  custom
+                > 
+                
+                </ Form.File>
               </Form.Group>
             </Form>
           </Modal.Body>
@@ -450,7 +462,11 @@ const TaskList = () => {
                 <Form.Control
                   id="nameEdit"
                   type="text"
+                  defaultValue={`${nameEditTask}`}
                   placeholder="Ingresa el nombre de la tarea"
+                  onChange={(e)=>{
+                    setNameEditTask(e.target.value);
+                  }}
                 />
               </Form.Group>
               <Form.Group>
@@ -459,18 +475,21 @@ const TaskList = () => {
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <DateTimePicker
                     value={selectedDate}
-                    onChange={handleDateChange}
+                    onChange={(e)=>{
+                      setDateChange(true);
+                      handleDateChange(e);
+                    }}
                   />
                 </MuiPickersUtilsProvider>
               </Form.Group>
               <Form.Group>
-                <Form.Label>Prioridad</Form.Label>
+                <Form.Label>Prioridad:{ priorityEditTask }</Form.Label>
                 <br></br>
                 <ButtonGroup>
                   <Button
                     variant="danger"
                     onClick={() => {
-                      handlePriorityChange("High");
+                      setPriorityEditTask("Alta");
                     }}
                   >
                     Alta
@@ -478,7 +497,7 @@ const TaskList = () => {
                   <Button
                     variant="success"
                     onClick={() => {
-                      handlePriorityChange("Medium");
+                      setPriorityEditTask("Media");
                     }}
                   >
                     Media
@@ -486,7 +505,7 @@ const TaskList = () => {
                   <Button
                     variant="primary"
                     onClick={() => {
-                      handlePriorityChange("Low");
+                      setPriorityEditTask("Baja");
                     }}
                   >
                     Baja
@@ -496,12 +515,17 @@ const TaskList = () => {
 
               <Form.Group>
                 <Form.Label>Subir imagen</Form.Label>
-                <Form.File
+                <Form.File           
                   onChange={(e) => {
+                    setImgChange(true);
                     setFileImg(e.target.files[0]);
                     setImgname(e.target.files[0].name);
+                    setnameImgEditTask(e.target.files[0].name);
+                    console.log(imgChange)
                   }}
+                  label={`${nameImgEditTask}`}
                   accept=".jpeg,.jpg,.png"
+                  custom
                 />
               </Form.Group>
             </Form>

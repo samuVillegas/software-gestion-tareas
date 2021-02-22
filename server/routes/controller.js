@@ -91,9 +91,10 @@ module.exports = {
         }
     },
     editTast: async(req,res)=>{
-        try{
-            const{_id,UrlImg,TaskName,TaskPriority,ExpirationDate,User} = req.body;
-            await Task.findByIdAndUpdate(_id,{UrlImg,TaskName,TaskPriority,ExpirationDate,User});
+        try{    
+            console.log(req.body);
+            console.log(req.params._id);
+            await Task.findByIdAndUpdate(req.params._id,{$set:req.body});
             res.status(201).json({state:1,message:'Update Task'})
         }catch(err){
             console.log(err);

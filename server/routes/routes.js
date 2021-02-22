@@ -18,5 +18,5 @@ router.post('/sendImg',sendImg);
 router.post('/registerTask',registerTask);
 router.get('/getTasks/:User',getTasks);
 router.delete('/deleteTask/:_id',deleteTask);
-router.put('/editTask',editTast);
+router.put('/editTask/:_id',editTast);
 module.exports = router;
